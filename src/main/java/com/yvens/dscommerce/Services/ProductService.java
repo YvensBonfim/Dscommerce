@@ -1,14 +1,20 @@
 package com.yvens.dscommerce.Services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yvens.dscommerce.DTO.ProductDto;
 import com.yvens.dscommerce.Entities.Product;
 import com.yvens.dscommerce.Repositories.ProductRepository;
+import com.yvens.dscommerce.Services.Exceptions.DatabaseException;
+import com.yvens.dscommerce.Services.Exceptions.ResourceNotFoundException;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class ProductService {
@@ -19,7 +25,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductDto findById(Long id) {
 
-        Product product = repository.findById(id).get();
+        Product product = repository.findById(id).orElseThrow(()-> new ResourceNotFoundException(" Recurso não encontrado") );
         return new ProductDto(product);
 
     }
@@ -44,19 +50,30 @@ public class ProductService {
     }
     @Transactional
     public ProductDto Update(Long id, ProductDto productDto) {
-
-        Product entity = repository.getReferenceById(id);
+        try{
+             Product entity = repository.getReferenceById(id);
         copyDtoToEntity(productDto, entity);
 
         entity = repository.save(entity);
         return new ProductDto(entity);
+        }catch(EntityNotFoundException e ){
+            throw new ResourceNotFoundException("Recurso não encontrado");
+        }
+       
 
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id) {
-
-      repository.deleteById(id);
+    if (!repository.existsById(id)) {
+         throw new ResourceNotFoundException("Recurso não encontrado");
+    }
+    try{
+        repository.deleteById(id);
+    }catch(DataIntegrityViolationException e){
+        throw new DatabaseException("Falha de integridade referencial");
+    }
+      
 
     }
 
