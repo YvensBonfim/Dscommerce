@@ -17,39 +17,41 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
 @RestController
-@RequestMapping(value ="/products")
+@RequestMapping(value = "/products")
 public class ProductController {
-    @Autowired
-    private ProductService service;
+   @Autowired
+   private ProductService service;
 
    @GetMapping(value = "/{id}")
-   public ResponseEntity<ProductDto> findByIDto(@PathVariable Long id) {
+   public ResponseEntity<ProductDto> findByID(@PathVariable Long id) {
       ProductDto dto = service.findById(id);
       return ResponseEntity.ok(dto);
 
-       
    }
+
    @GetMapping()
-   public ResponseEntity<Page< ProductDto>>  findAll(Pageable pageable) {
-      Page <ProductDto> dto =   service.findAll(pageable);
+   public ResponseEntity<Page<ProductDto>> findAll(Pageable pageable) {
+      Page<ProductDto> dto = service.findAll(pageable);
       return ResponseEntity.ok(dto);
-       
+
    }
+
    @PostMapping()
-   public ResponseEntity  <ProductDto>  insert(@RequestBody ProductDto dto) {
-      dto =   service.Insert(dto);
-      URI uri =ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.getId()).toUri(); 
+   public ResponseEntity<ProductDto> insert(@RequestBody ProductDto dto) {
+      dto = service.Insert(dto);
+      URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.getId()).toUri();
       return ResponseEntity.created(uri).body(dto);
-       
+
    }
-   
 
+   @PutMapping(value = "/{id}")
+   public ResponseEntity<ProductDto> update(@PathVariable Long id, @RequestBody ProductDto dto) {
+      dto = service.Update(id, dto);
+      return ResponseEntity.ok(dto);
 
-
-    
-
+   }
 }
