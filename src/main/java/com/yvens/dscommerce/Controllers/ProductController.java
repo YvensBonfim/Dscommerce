@@ -8,6 +8,8 @@ import com.yvens.dscommerce.DTO.ProductDto;
 
 import com.yvens.dscommerce.Services.ProductService;
 
+import jakarta.validation.Valid;
+
 import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +44,7 @@ public class ProductController {
    }
 
    @PostMapping()
-   public ResponseEntity<ProductDto> insert(@RequestBody ProductDto dto) {
+   public ResponseEntity<ProductDto> insert(@Valid @RequestBody ProductDto dto) {
       dto = service.Insert(dto);
       URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.getId()).toUri();
       return ResponseEntity.created(uri).body(dto);
@@ -50,7 +52,7 @@ public class ProductController {
    }
 
    @PutMapping(value = "/{id}")
-   public ResponseEntity<ProductDto> update(@PathVariable Long id, @RequestBody ProductDto dto) {
+   public ResponseEntity<ProductDto> update(@Valid @PathVariable Long id,@Valid @RequestBody ProductDto dto) {
       dto = service.Update(id, dto);
       return ResponseEntity.ok(dto);
 
