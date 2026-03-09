@@ -2,6 +2,7 @@ package com.yvens.dscommerce.Services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,10 +24,23 @@ public class ProductService {
 
     }
     @Transactional(readOnly = true)
-    public Page <ProductDto> findAll(org.springframework.data.domain.Pageable pageable) {
+    public Page <ProductDto> findAll(Pageable pageable) {
 
        Page<Product> result = repository.findAll(pageable);
         return result.map(x->new ProductDto(x));
+
+    }
+    @Transactional
+    public  ProductDto Insert(ProductDto productDto) {
+
+        Product entity = new Product();
+        entity.setName(productDto.getName());
+        entity.setDescription(productDto.getDescription());
+        entity.setPrice(productDto.getPrice());
+        entity.setImgUrl(productDto.getImgUrl());
+
+        entity = repository.save(entity);
+        return new ProductDto(entity);
 
     }
 
