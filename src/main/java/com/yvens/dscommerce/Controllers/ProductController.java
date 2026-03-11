@@ -1,6 +1,7 @@
 package com.yvens.dscommerce.Controllers;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -37,8 +38,8 @@ public class ProductController {
    }
 
    @GetMapping()
-   public ResponseEntity<Page<ProductDto>> findAll(Pageable pageable) {
-      Page<ProductDto> dto = service.findAll(pageable);
+   public ResponseEntity<Page<ProductDto>> findAll(@RequestParam(name = "name", defaultValue = "") String name,Pageable pageable) {
+      Page<ProductDto> dto = service.findAll(name,pageable);
       return ResponseEntity.ok(dto);
 
    }
