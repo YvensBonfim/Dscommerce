@@ -2,9 +2,14 @@ package com.yvens.dscommerce.Entities;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +26,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name ="TB_USER")
-public class User {
+public class User implements UserDetails {
     
 
     @Id
@@ -34,6 +39,7 @@ public class User {
 
     @Column(unique = true)
     private String email;
+    
     private String phone;
     private LocalDate birthDate;
     private String password;
@@ -129,6 +135,19 @@ public class User {
         return orders;
     }
 
+    public void addRole(Role role){
+        roles.add(role);
+    }
+
+    	public boolean hasRole(String roleName) {
+		for (Role role : roles) {
+			if (role.getAuthority().equals(roleName)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 
     @Override
     public int hashCode() {
@@ -140,20 +159,26 @@ public class User {
 
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        User other = (User) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        return true;
+    public boolean equals(Object o) {
+            if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        return Objects.equals(id, user.id);
+    }
+    
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return roles;
+	}
+
+
+    @Override
+    public String getUsername() {
+       
+       return email;
     }
 
     
