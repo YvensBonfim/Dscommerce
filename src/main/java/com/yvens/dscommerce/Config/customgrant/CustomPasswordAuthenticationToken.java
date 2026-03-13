@@ -23,7 +23,7 @@ public class CustomPasswordAuthenticationToken extends OAuth2AuthorizationGrantA
         
         super(new AuthorizationGrantType("password"), clientPrincipal, additionalParameters);
         
-        // CORREÇÃO: Verifica se o mapa é nulo antes de acessar. 
+        
         // Se for nulo ou não contiver as chaves, define como string vazia ou null de forma segura.
         this.username = (additionalParameters != null) ? (String) additionalParameters.get("username") : null;
         this.password = (additionalParameters != null) ? (String) additionalParameters.get("password") : null;

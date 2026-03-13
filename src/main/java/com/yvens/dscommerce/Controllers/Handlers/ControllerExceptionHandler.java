@@ -38,7 +38,7 @@ return ResponseEntity.status(status).body(err);
 @ExceptionHandler(MethodArgumentNotValidException.class)
 public ResponseEntity<CustomErros> MethodArgumentNotValidion(MethodArgumentNotValidException e, HttpServletRequest request)
  {
-HttpStatus status = HttpStatus.UNPROCESSABLE_CONTENT;
+HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
 ValidationError err = new ValidationError(Instant.now(), status.value(),"dados invalidos", request.getRequestURI());
 for(FieldError f : e.getBindingResult().getFieldErrors()){
     err.addError(f.getField(), f.getDefaultMessage());

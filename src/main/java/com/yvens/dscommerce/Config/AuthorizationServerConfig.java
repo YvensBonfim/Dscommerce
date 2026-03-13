@@ -14,8 +14,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -45,6 +43,10 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+
+
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -89,7 +91,7 @@ public class AuthorizationServerConfig {
             .securityMatcher(endpointsMatcher)
             .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
             .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher))
-            .apply(authorizationServerConfigurer);
+            .with(authorizationServerConfigurer, Customizer.withDefaults()); 
 
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
@@ -106,7 +108,7 @@ public class AuthorizationServerConfig {
             .scope("write")
             .authorizationGrantType(new AuthorizationGrantType("password"))
             .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN) 
-            .tokenSettings(tokenSettings()) // Agora o método existe abaixo
+            .tokenSettings(tokenSettings())
             .clientSettings(clientSettings())
             .build();
 

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +31,7 @@ public class ProductController {
    @Autowired
    private ProductService service;
 
+  @PreAuthorize("hasAnyRole('ADMIN', 'CLIENT')")
    @GetMapping(value = "/{id}")
    public ResponseEntity<ProductDto> findByID(@PathVariable Long id) {
       ProductDto dto = service.findById(id);
@@ -44,6 +46,7 @@ public class ProductController {
 
    }
 
+  @PreAuthorize("hasRole('ADMIN')")
    @PostMapping()
    public ResponseEntity<ProductDto> insert(@Valid @RequestBody ProductDto dto) {
       dto = service.Insert(dto);

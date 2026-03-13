@@ -3,14 +3,13 @@ package com.yvens.dscommerce.Config;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,62 +26,67 @@ import org.springframework.web.filter.CorsFilter;
 @EnableMethodSecurity
 public class ResourceServerConfig {
 
-	@Value("${cors.origins}")
-	private String corsOrigins;
+    @Value("${cors.origins}")
+    private String corsOrigins;
 
-	@Bean
-	@Profile("test")
-	@Order(1)
-	public SecurityFilterChain h2SecurityFilterChain(HttpSecurity http) throws Exception {
+    @Bean
+    @Profile("test")
+    @Order(1)
+    public SecurityFilterChain h2SecurityFilterChain(HttpSecurity http) throws Exception {
+        http.securityMatcher(PathRequest.toH2Console()).csrf(csrf -> csrf.disable())
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
+        return http.build();
+    }
 
-		http.securityMatcher(PathRequest.toH2Console()).csrf(csrf -> csrf.disable())
-				.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
-		return http.build();
-	}
+    @Bean
+    @Order(3)
+    public SecurityFilterChain rsSecurityFilterChain(HttpSecurity http) throws Exception {
 
-	@Bean
-	@Order(3)
-	public SecurityFilterChain rsSecurityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable());
+        http.authorizeHttpRequests((authorize) -> authorize.anyRequest().permitAll());
+        
+        // CORREÇÃO: Conectando o conversor de JWT para ler as 'authorities'
+        http.oauth2ResourceServer(oauth2ResourceServer -> 
+            oauth2ResourceServer.jwt(jwt -> 
+                jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
+            )
+        );
+        
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+        return http.build();
+    }
 
-		http.csrf(csrf -> csrf.disable());
-		http.authorizeHttpRequests((authorize) -> authorize.anyRequest().permitAll());
-		http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
-		http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
-		return http.build();
-	}
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
 
-	@Bean
-	public JwtAuthenticationConverter jwtAuthenticationConverter() {
-		JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-		grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
-		grantedAuthoritiesConverter.setAuthorityPrefix("");
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
+    }
 
-		JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-		jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-		return jwtAuthenticationConverter;
-	}
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        String[] origins = corsOrigins.split(",");
 
-	@Bean
-	CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfig = new CorsConfiguration();
+        corsConfig.setAllowedOriginPatterns(Arrays.asList(origins));
+        corsConfig.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE", "PATCH"));
+        corsConfig.setAllowCredentials(true);
+        corsConfig.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
 
-		String[] origins = corsOrigins.split(",");
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfig);
+        return source;
+    }
 
-		CorsConfiguration corsConfig = new CorsConfiguration();
-		corsConfig.setAllowedOriginPatterns(Arrays.asList(origins));
-		corsConfig.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE", "PATCH"));
-		corsConfig.setAllowCredentials(true);
-		corsConfig.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
-
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", corsConfig);
-		return source;
-	}
-
-	@Bean
-	FilterRegistrationBean<CorsFilter> corsFilter() {
-		FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(
-				new CorsFilter(corsConfigurationSource()));
-		bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-		return bean;
-	}
+    @Bean
+    public FilterRegistrationBean<CorsFilter> corsFilterRegistrationBean() {
+        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(
+                new CorsFilter(corsConfigurationSource()));
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return bean;
+    }
 }

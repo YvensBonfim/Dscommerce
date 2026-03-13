@@ -52,7 +52,7 @@ public class CustomPasswordAuthenticationProvider implements AuthenticationProvi
         OAuth2ClientAuthenticationToken clientPrincipal = getAuthenticatedClientElseThrowInvalidClient(customPasswordAuthenticationToken);
         RegisteredClient registeredClient = clientPrincipal.getRegisteredClient();
 
-        // CORREÇÃO: Validação de nulidade para evitar o aviso de Potential Null Pointer
+       
         if (registeredClient == null) {
             throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_CLIENT);
         }
