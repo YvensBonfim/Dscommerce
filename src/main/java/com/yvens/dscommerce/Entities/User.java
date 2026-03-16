@@ -181,6 +181,14 @@ public class User implements UserDetails {
        return email;
     }
 
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+
+   
+
     
     
 
