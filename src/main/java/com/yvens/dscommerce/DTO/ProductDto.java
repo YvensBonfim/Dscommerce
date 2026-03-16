@@ -22,7 +22,7 @@ public class ProductDto {
 
     private String imgUrl;
 
-    // --- ADICIONE ESTE CONSTRUTOR AQUI ---
+   
     public ProductDto() {
     }
 
