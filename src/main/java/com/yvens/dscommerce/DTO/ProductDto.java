@@ -1,7 +1,12 @@
 package com.yvens.dscommerce.DTO;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.yvens.dscommerce.Entities.Category;
 import com.yvens.dscommerce.Entities.Product;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
@@ -22,7 +27,6 @@ public class ProductDto {
 
     private String imgUrl;
 
-   
     public ProductDto() {
     }
 
@@ -33,6 +37,8 @@ public class ProductDto {
         this.price = price;
         this.imgUrl = imgUrl;
     }
+    @NotEmpty(message = "deve ter ao menos uma categoria")
+    private List<CategoryDto> categories = new ArrayList<>();
 
     public ProductDto(Product entity) {
         id = entity.getId();
@@ -40,12 +46,35 @@ public class ProductDto {
         description = entity.getDescription();
         price = entity.getPrice();
         imgUrl = entity.getImgUrl();
+
+        for (Category cat : entity.getCategories()) {
+            categories.add(new CategoryDto(cat));
+        }
+
     }
 
-    // Getters... (mantenha os que você já tem)
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public String getDescription() { return description; }
-    public Double getPrice() { return price; }
-    public String getImgUrl() { return imgUrl; }
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public List<CategoryDto> getCategories() {
+        return categories;
+    }
+
 }
