@@ -67,6 +67,8 @@ public void setPrice(Double price) {
 }
 
 
+
+
 @Override
 public int hashCode() {
     final int prime = 31;
@@ -91,6 +93,11 @@ public boolean equals(Object obj) {
     } else if (!id.equals(other.id))
         return false;
     return true;
+}
+
+
+public OrderItemPK getId() {
+    return id;
 }
 
 

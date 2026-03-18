@@ -87,6 +87,8 @@ public class Order {
 
     
 
+    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -116,6 +118,24 @@ public class Order {
 return items.stream().map(x -> x.getproduct()).toList();
 
     }
+
+    public Instant getMoment() {
+        return moment;
+    }
+
+    public void setMoment(Instant moment) {
+        this.moment = moment;
+    }
+
+    public void setPayment(Payment payment) {
+        this.payment = payment;
+    }
+
+    public void setItems(Set<OrderItem> items) {
+        this.items = items;
+    }
+
+    
 
 
 
