@@ -22,7 +22,7 @@ public class CategoryService {
   @Transactional(readOnly = true)
     public List<CategoryDto> findAll() {
         List<Category> result = repository.findAll();
-        result.stream().map(x->new CategoryDto(x)).toList();
-            return null;
+        return result.stream().map(x->new CategoryDto(x)).toList();
+             
     }
 }
