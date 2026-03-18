@@ -13,6 +13,7 @@ import com.yvens.dscommerce.DTO.CustomErros;
 import com.yvens.dscommerce.DTO.ValidationError;
 import com.yvens.dscommerce.Services.Exceptions.DatabaseException;
 import com.yvens.dscommerce.Services.Exceptions.ResourceNotFoundException;
+import com.yvens.dscommerce.Services.Exceptions.Forbiden.ForbidenException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -43,6 +44,14 @@ ValidationError err = new ValidationError(Instant.now(), status.value(),"dados i
 for(FieldError f : e.getBindingResult().getFieldErrors()){
     err.addError(f.getField(), f.getDefaultMessage());
 }
+return ResponseEntity.status(status).body(err);
+}
+
+@ExceptionHandler(ForbidenException.class)
+public ResponseEntity<CustomErros> forbiden(ForbidenException e, HttpServletRequest request)
+ {
+HttpStatus status = HttpStatus.FORBIDDEN;
+CustomErros err = new CustomErros(Instant.now(), status.value(), e.getMessage(), request.getRequestURI());
 return ResponseEntity.status(status).body(err);
 }
 
